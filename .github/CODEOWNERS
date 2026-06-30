@@ -1,0 +1,7 @@
+# Self-modification is gated by review. Agents may PR changes to these paths,
+# but the change only takes effect once you (the code owner) approve the merge.
+# The merge is the privileged door; the issue never is.
+/.github/        @nickmeinhold
+/allowlist.txt   @nickmeinhold
+/arena/          @nickmeinhold
+/runner/         @nickmeinhold
