@@ -32,7 +32,7 @@ the current one's check is green. Cage, then monster.
 A self-hosted runner on a **public** repo will, by default, execute fork-PR code on your box.
 Close that door before the runner exists.
 
-In **Settings → Actions → General** (`https://github.com/nickmeinhold/the-building-repo/settings/actions`):
+In **Settings → Actions → General** (`https://github.com/daemon-engine-labs/the-building-repo/settings/actions`):
 
 1. **Fork pull request workflows from outside collaborators** → **"Require approval for all external contributors"** (strictest). This means no fork-PR workflow runs until you click approve.
 2. **Workflow permissions** → **"Read repository contents permission"** (default-deny token).
@@ -116,7 +116,7 @@ through the proxy via `HTTP(S)_PROXY`. Direct egress is impossible; only allowli
 Get a registration token (one per registration; ephemeral runners consume one job then exit):
 
 ```bash
-gh api -X POST repos/nickmeinhold/the-building-repo/actions/runners/registration-token -q .token
+gh api -X POST repos/daemon-engine-labs/the-building-repo/actions/runners/registration-token -q .token
 ```
 
 `runner/Dockerfile` (pin the latest runner version):
@@ -133,7 +133,7 @@ docker run --rm --network arena-internal \
   -e HTTP_PROXY=http://egress:8888 -e HTTPS_PROXY=http://egress:8888 \
   -e NO_PROXY=localhost,127.0.0.1 \
   ghcr.io/actions/actions-runner:latest \
-  bash -c "./config.sh --url https://github.com/nickmeinhold/the-building-repo \
+  bash -c "./config.sh --url https://github.com/daemon-engine-labs/the-building-repo \
             --token <REG_TOKEN> --labels self-hosted,sandbox --ephemeral --unattended \
             --name sandbox-\$(hostname) && ./run.sh"
 ```
@@ -141,7 +141,7 @@ docker run --rm --network arena-internal \
 Wrap that in a `while true; do …; done` loop (or a launchd job) so a fresh ephemeral runner
 re-registers after each job. **Each job thus gets a clean container.**
 
-**Check:** `gh api repos/nickmeinhold/the-building-repo/actions/runners -q '.runners[].labels[].name'`
+**Check:** `gh api repos/daemon-engine-labs/the-building-repo/actions/runners -q '.runners[].labels[].name'`
 shows `self-hosted` + `sandbox`, status `online`.
 
 > **Named tradeoff (the shortcut, if you ever take it):** running the runner natively on macOS
@@ -189,17 +189,17 @@ carry that label.
 <summary><b>Phase 4 — Wire secrets (LAST, environment-scoped)</b></summary>
 
 Create a GitHub **Environment** named `privileged`
-(`https://github.com/nickmeinhold/the-building-repo/settings/environments`):
+(`https://github.com/daemon-engine-labs/the-building-repo/settings/environments`):
 
 - **Required reviewers:** you. (So even an allowlisted trigger pauses for your click before secrets unlock — belt and braces with the allowlist.)
 - Add secrets **to the environment**, not the repo, so only `build-privileged` (which declares
   `environment: privileged`) can read them:
 
 ```bash
-gh secret set ANTHROPIC_OAUTH --env privileged --repo nickmeinhold/the-building-repo
-gh secret set OPENAI_API_KEY  --env privileged --repo nickmeinhold/the-building-repo
-gh secret set GEMINI_API_KEY  --env privileged --repo nickmeinhold/the-building-repo
-gh secret set BUDGET_PROXY_TOKEN --env privileged --repo nickmeinhold/the-building-repo
+gh secret set ANTHROPIC_OAUTH --env privileged --repo daemon-engine-labs/the-building-repo
+gh secret set OPENAI_API_KEY  --env privileged --repo daemon-engine-labs/the-building-repo
+gh secret set GEMINI_API_KEY  --env privileged --repo daemon-engine-labs/the-building-repo
+gh secret set BUDGET_PROXY_TOKEN --env privileged --repo daemon-engine-labs/the-building-repo
 ```
 
 > **The real card NEVER goes here.** Only the budget-proxy *token* does (Phase 5). Even fully

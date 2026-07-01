@@ -9,7 +9,7 @@
 # Auth: this loop runs on YOUR box and uses `gh` (your auth) to mint runner tokens.
 set -euo pipefail
 
-REPO="nickmeinhold/the-building-repo"
+REPO="daemon-engine-labs/the-building-repo"
 IMAGE="arena-sandbox-runner"
 PROXY="http://egress:8888"
 
