@@ -19,10 +19,12 @@ echo "[sandbox] starting ephemeral runner loop for $REPO (Ctrl-C to stop)"
 while true; do
   TOKEN="$(gh api -X POST "repos/$REPO/actions/runners/registration-token" -q .token)"
   # --network arena-internal: no direct internet. Proxy env: only allowlisted hosts reachable.
-  # --read-only + tmpfs: the container filesystem is ephemeral and non-persistent.
+  # --rm + --ephemeral (below): the container is destroyed after one job — nothing persists.
+  # (We do NOT use --read-only: the runner writes .env/.path/_diag/_work into its own home,
+  #  which a read-only rootfs blocks. Ephemerality + network isolation + no secrets + no host
+  #  mounts already bound the blast radius; read-only was redundant hardening. Named tradeoff.)
   docker run --rm \
     --network arena-internal \
-    --read-only --tmpfs /tmp --tmpfs /home/runner/_work \
     -e HTTP_PROXY="$PROXY"  -e HTTPS_PROXY="$PROXY" \
     -e http_proxy="$PROXY"  -e https_proxy="$PROXY" \
     -e NO_PROXY="localhost,127.0.0.1" \
